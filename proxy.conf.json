@@ -1,0 +1,9 @@
+{
+    "/list_api": {
+        "target": "http://localhost:8080/",
+        "pathRewrite": {
+            "^/list_api": ""
+        },
+        "changeOrigin": true
+    }
+}
