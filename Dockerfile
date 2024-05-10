@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm install
 
+RUN echo 'console.log("API_URL", import.meta.env["API_URL"])' >>src/main.ts
+
 RUN npm run build
 
 FROM nginx:alpine
