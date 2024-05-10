@@ -2,6 +2,10 @@ FROM node:18-alpine as BUILD_IMAGE
 
 WORKDIR /app
 
+ARG ARG_HOST
+
+ENV BE_HOST=$ARG_HOST
+
 COPY . .
 
 RUN npm install
