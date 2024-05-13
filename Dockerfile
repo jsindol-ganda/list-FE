@@ -10,9 +10,7 @@ COPY . .
 
 RUN npm install
 
-RUN echo $BE_HOST
-
-RUN API_URL=$BE_HOST npm run build
+RUN npm run build
 
 FROM nginx:alpine
 
