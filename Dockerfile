@@ -10,9 +10,7 @@ COPY . .
 
 RUN npm install
 
-RUN echo 'console.log("API_URL", import.meta.env["API_URL"])' >>src/main.ts
-
-RUN npm run build
+RUN API_URL=$BE_HOST npm run build
 
 FROM nginx:alpine
 
