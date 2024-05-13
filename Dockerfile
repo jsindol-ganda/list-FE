@@ -1,14 +1,16 @@
 FROM node:18-alpine as BUILD_IMAGE
 
-WORKDIR /app
-
 ARG ARG_HOST
 
 ENV BE_HOST=$ARG_HOST
 
+WORKDIR /app
+
 COPY . .
 
 RUN npm install
+
+RUN echo $BE_HOST
 
 RUN API_URL=$BE_HOST npm run build
 
