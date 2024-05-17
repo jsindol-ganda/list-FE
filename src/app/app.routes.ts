@@ -1,10 +1,12 @@
 import { RouterModule, Routes } from '@angular/router';
-import { AppComponent } from './app.component';
 import { NgModule } from '@angular/core';
 
 export const routes: Routes = [{
     path: '',
-    component: AppComponent
+    loadComponent: () => import('./app.component').then(module => module.AppComponent)
+}, {
+    path: 'face',
+    loadComponent: () => import('./components/random-face/random-face.component').then(module => module.RandomFaceComponent)
 }];
 
 @NgModule({

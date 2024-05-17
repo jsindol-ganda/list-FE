@@ -1,68 +1,88 @@
-<mat-card class="my_card my-4">
-  <mat-card-header>
-    <mat-card-title>My List</mat-card-title>
-    <mat-card-subtitle>things i need to do</mat-card-subtitle>
-  </mat-card-header>
-  <div class="mx-4 my-2 d-flex justify-content-between">
-    <mat-list role="list" [ngClass]="{'w-50': toAdd || toShowDetail, 'w-100': !toAdd && !toShowDetail}">
-      @for (note of listOfNotes; track note) {
-        <mat-list-item class="item_list" (click)="showDetails(note)">
-          <div matListItemTitle><b>{{note.title}}</b></div>
-          <!-- <div matListItemLine>{{note.desc}}</div>
-          <div matListItemLine>{{note.date | date}}</div> -->
-        </mat-list-item>
-      }
-    </mat-list>
-    @if (toAdd) {
-      <form [formGroup]="noteGroup" (ngSubmit)="saveNote()" novalidate class="d-flex flex-column w-50 mx-auto">
-        <mat-form-field appearance="outline">
-          <mat-label>Title</mat-label>
-          <input matInput type="text" formControlName="title"required>
-          @if (!noteGroup.get('title')?.valid) {
-            <mat-error>Title is required</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Description</mat-label>
-          <input matInput type="text" formControlName="desc" required>
-          @if (!noteGroup.get('desc')?.valid) {
-            <mat-error>Description is required</mat-error>
-          }
-        </mat-form-field>
-        @if (!toModify) {
+<div class="container">
+  <mat-card class="my_card my-4">
+    <mat-card-header>
+      <mat-card-title>My List</mat-card-title>
+      <mat-card-subtitle>things i need to do</mat-card-subtitle>
+    </mat-card-header>
+    <div class="mx-4 my-2 d-flex justify-content-between">
+      <table mat-table #table [dataSource]="listOfNotes" [ngClass]="{'min_w mx-2': toAdd || toShowDetail, 'min_w_full': !toAdd || !toShowDetail}">
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                          [checked]="notesSelected.hasValue() && isAllSelected()"
+                          [indeterminate]="notesSelected.hasValue() && !isAllSelected()"
+                          [aria-label]="checkboxLabel()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? notesSelected.toggle(row) : null"
+                          [checked]="notesSelected.isSelected(row)"
+                          [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef> Title </th>
+          <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="showDetails(row)">
+      </table>
+      @if (toAdd) {
+        <form [formGroup]="noteGroup" (ngSubmit)="saveNote()" novalidate class="d-flex flex-column w-50 mx-auto">
           <mat-form-field appearance="outline">
-            <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="date">
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            @if (!noteGroup.get('date')?.valid) {
-              <mat-error>Date is required</mat-error>
+            <mat-label>Title</mat-label>
+            <input matInput type="text" formControlName="title"required>
+            @if (!noteGroup.get('title')?.valid) {
+              <mat-error>Title is required</mat-error>
             }
           </mat-form-field>
-        }
-        <button mat-raised-button color="primary" type="submit">Save</button>
-       </form>
-    }    
-    @if (toShowDetail) {
-      <mat-card class="example-card w-50 mx-2 justify-content-between" [class.mat-elevation-z8]>
-        <mat-card-header>
-          <mat-card-title>{{selectedNote.title}}</mat-card-title>
-          <mat-card-subtitle>{{selectedNote.date | date}}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{selectedNote.desc}}</p>
-        </mat-card-content>
-        <mat-card-footer>
-          <mat-card-actions>
-            <button mat-raised-button color="accent" class="mx-1" (click)="editNote()">Edit</button>
-            <button mat-raised-button color="warn" (click)="deleteNote()">Delete</button>
-          </mat-card-actions>
-        </mat-card-footer>
-      </mat-card>
-    }
-  </div>
-  <mat-card-actions>
-    <button mat-raised-button color="primary"(click)="showAdd()">{{!toAdd ? 'ADD' : 'HIDE'}}</button>
-  </mat-card-actions>
-</mat-card>
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput type="text" formControlName="desc" required>
+            @if (!noteGroup.get('desc')?.valid) {
+              <mat-error>Description is required</mat-error>
+            }
+          </mat-form-field>
+          @if (!toModify) {
+            <mat-form-field appearance="outline">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="date">
+              <mat-hint>MM/DD/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              @if (!noteGroup.get('date')?.valid) {
+                <mat-error>Date is required</mat-error>
+              }
+            </mat-form-field>
+          }
+          <button mat-raised-button color="primary" type="submit">Save</button>
+         </form>
+      }    
+      @if (toShowDetail) {
+        <mat-card class="example-card w-50 mx-2 justify-content-between" [class.mat-elevation-z8]>
+          <mat-card-header class="justify-content-between">
+            <mat-icon aria-hidden="false" aria-label="Example home icon" (click)="closeDetail()" fontIcon="close"></mat-icon>
+            <mat-card-title>{{selectedNote.title}}</mat-card-title>
+            <mat-card-subtitle>{{selectedNote.date | date}}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{selectedNote.desc}}</p>
+          </mat-card-content>
+          <mat-card-footer>
+            <mat-card-actions>
+              <button mat-raised-button color="accent" class="mx-1" (click)="editNote()">Edit</button>
+              <button mat-raised-button color="warn" (click)="deleteNote()">Delete</button>
+            </mat-card-actions>
+          </mat-card-footer>
+        </mat-card>
+      }
+    </div>
+    <mat-card-actions>
+      <button mat-raised-button color="primary"(click)="showAdd()">{{!toAdd ? 'ADD' : 'HIDE'}}</button>
+      @if (!notesSelected.isEmpty()) { <button mat-raised-button color="accent" class="mx-2" (click)="markAsComplete()">Mark as finished</button>}
+    </mat-card-actions>
+  </mat-card>
+</div>
+@if (showNotesFinished) {   <app-completed-items ></app-completed-items> }

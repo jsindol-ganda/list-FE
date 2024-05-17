@@ -3,4 +3,5 @@ export interface Note {
     title?: string,
     desc?: string,
     date?: Date
+    isChecked?: boolean
 }
